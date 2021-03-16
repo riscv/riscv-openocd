@@ -42,7 +42,7 @@ if [ "$TOOLCHAIN_PREFIX" != "riscv64-unknown-elf-" ]; then
     done
 fi
 
-# Check that the compiler and debugger run
+# Check that the compiler and debugger can run, show versions
 ./riscv64-unknown-elf-gcc --version
 ./riscv64-unknown-elf-gdb --version
 
