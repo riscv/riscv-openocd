@@ -11,7 +11,7 @@ set -o xtrace
 # Checkout riscv-tests.
 mkdir -p "$CHECKOUT_DIR"
 cd "$CHECKOUT_DIR"
-git clone --depth=1 --recursive https://github.com/riscv/riscv-tests .
+git clone --depth=1 --recursive https://github.com/riscv/riscv-tests . --branch multispike
 
 # Show revision info
 git --no-pager log --no-walk --pretty=short
