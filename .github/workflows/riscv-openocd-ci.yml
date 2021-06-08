@@ -4,6 +4,7 @@ on: [push]
 jobs:
 
   run-riscv-tests:
+    timeout-minutes: 600
     runs-on: ubuntu-18.04
     steps:
 
