@@ -4,7 +4,7 @@ on: [push]
 jobs:
 
   run-riscv-tests:
-    timeout-minutes: 600
+    timeout-minutes: 720
     runs-on: ubuntu-18.04
     steps:
 
@@ -32,6 +32,7 @@ jobs:
           echo "RISCV=`pwd`/tools/riscv-openocd-ci/work/install" >> $GITHUB_ENV
 
       - name: Checkout & run riscv-tests
+        timeout-minutes: 720
         run: bash tools/riscv-openocd-ci/run_tests.sh
 
       - name: Process test results
