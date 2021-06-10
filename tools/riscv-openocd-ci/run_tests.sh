@@ -23,6 +23,6 @@ cd debug
 JOBS=$(($(nproc) + 2))
 
 # Temporary: Run the testing 10 times to have higher chance of catching intermittent failures
-for i in {1..10}; do
+for i in {1..5}; do
 	make -k -j$JOBS all || true
 done
