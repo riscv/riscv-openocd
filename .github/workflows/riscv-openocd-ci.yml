@@ -1,0 +1,65 @@
+name: riscv-openocd-ci
+on: [push]
+
+jobs:
+
+  run-riscv-tests:
+    timeout-minutes: 720
+    runs-on: ubuntu-18.04
+    steps:
+
+      - name: Install required pkgs
+        run: |
+          sudo apt-get install libtool pkg-config autoconf automake libusb-1.0 libftdi1 lcov device-tree-compiler pylint3
+          sudo python3 -m pip install pexpect
+
+      - name: Checkout OpenOCD
+        uses: actions/checkout@v2
+
+      - name: Build OpenOCD
+        run: bash tools/riscv-openocd-ci/build_openocd.sh
+
+      - name: Checkout & build Spike
+        run: bash tools/riscv-openocd-ci/build_spike.sh
+
+      - name: Download RISC-V toolchain
+        run: bash tools/riscv-openocd-ci/download_toolchain.sh
+
+      - name: Update env. variables
+        # Change RISCV and PATH env variables. Needed for the next step.
+        run: |
+          echo "`pwd`/tools/riscv-openocd-ci/work/install/bin" >> $GITHUB_PATH
+          echo "RISCV=`pwd`/tools/riscv-openocd-ci/work/install" >> $GITHUB_ENV
+
+      - name: Checkout & run riscv-tests
+        timeout-minutes: 720
+        run: bash tools/riscv-openocd-ci/run_tests.sh
+
+      - name: Process test results
+        # If at least one test failed (or ended with an exception), this step fails.
+        run: |
+          cd tools/riscv-openocd-ci
+          python3 process_test_results.py --log-dir work/riscv-tests/debug/logs --output-dir work/results/logs
+
+      - name: Store test results
+        # Run even if there was a failed test
+        if: ${{ success() || failure() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: test-results
+          path: tools/riscv-openocd-ci/work/results/logs
+
+      - name: Collect OpenOCD code coverage
+        # Run even if there was a failed test
+        if: ${{ success() || failure() }}
+        run: |
+          lcov --capture --directory . --output-file tools/riscv-openocd-ci/work/openocd-coverage.info
+          genhtml tools/riscv-openocd-ci/work/openocd-coverage.info --output-directory tools/riscv-openocd-ci/work/results/openocd-coverage
+
+      - name: Store OpenOCD code coverage
+        # Run even if there was a failed test
+        if: ${{ success() || failure() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: openocd-coverage
+          path: tools/riscv-openocd-ci/work/results/openocd-coverage
