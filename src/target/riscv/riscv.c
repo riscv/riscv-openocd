@@ -2239,6 +2239,8 @@ int riscv_openocd_poll(struct target *target)
 int riscv_openocd_step(struct target *target, int current,
 		target_addr_t address, int handle_breakpoints)
 {
+	RISCV_INFO(r);
+
 	LOG_DEBUG("stepping rtos hart");
 
 	if (!current)
@@ -2261,8 +2263,11 @@ int riscv_openocd_step(struct target *target, int current,
 
 	target->state = TARGET_RUNNING;
 	target_call_event_callbacks(target, TARGET_EVENT_RESUMED);
+
 	target->state = TARGET_HALTED;
-	target->debug_reason = DBG_REASON_SINGLESTEP;
+	/* Read real debug reason from the target. Do not presume the target halted due
+	 * to the single-step. There may be a higher-priority halt cause, e.g. a breakpoint. */
+	set_debug_reason(target, r->current_hartid);
 	target_call_event_callbacks(target, TARGET_EVENT_HALTED);
 	return out;
 }
