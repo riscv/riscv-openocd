@@ -121,9 +121,8 @@ void riscv_batch_add_dmi_write(struct riscv_batch *batch, unsigned address, uint
 	struct scan_field *field = batch->fields + batch->used_scans;
 	field->num_bits = riscv_dmi_write_u64_bits(batch->target);
 	field->out_value = (void *)(batch->data_out + batch->used_scans * DMI_SCAN_BUF_SIZE);
-	field->in_value  = (void *)(batch->data_in  + batch->used_scans * DMI_SCAN_BUF_SIZE);
+	field->in_value = NULL;
 	riscv_fill_dmi_write_u64(batch->target, (char *)field->out_value, address, data);
-	riscv_fill_dmi_nop_u64(batch->target, (char *)field->in_value);
 	batch->last_scan = RISCV_SCAN_TYPE_WRITE;
 	batch->used_scans++;
 }
